@@ -8,13 +8,13 @@ screen = pygame.display.set_mode(size)
 
 class Board:
     # создание поля
-    def __init__(self, width, height):
+    def __init__(self, width, height, cell_size, left_m=10, top_m=10):
         self.width = width
         self.height = height
         self.board = [[0] * width for _ in range(height)]
-        self.left = 10
-        self.top = 10
-        self.cell_size = 30
+        self.left = left_m
+        self.top = top_m
+        self.cell_size = cell_size
 
     def set_view(self, left, top, cell_size):
         self.left = left
