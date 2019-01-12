@@ -1,0 +1,3 @@
+WALL = 1
+LOCATION_EXIT = -1
+PLAYER = 'p'
