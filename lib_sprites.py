@@ -56,31 +56,43 @@ class UpDoor(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        all_sprites.add(self)
 
 
 def make_room(sprite, pos, x, y, door_pos_x, door_down=True):
     a, b = pos
+    bricks = set()
     if door_down:
         for i in range(x):
             brick1 = sprite(all_sprites, i*standart_size + a, b)
+            bricks.add(brick1)
             if i != door_pos_x:
                 brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
+                bricks.add(brick4)
         for j in range(y):
             brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
+            bricks.add(brick3)
             brick2 = sprite(all_sprites, a, j*standart_size + b)
+            bricks.add(brick2)
         brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
+        bricks.add(brick)
         door = Door(all_sprites, door_pos_x*standart_size + a, y*standart_size + b)
+        bricks.add(door)
     else:
         for i in range(x):
             if i != door_pos_x:
                 brick1 = sprite(all_sprites, i*standart_size + a, b)
+                bricks.add(brick1)
             brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
+            bricks.add(brick4)
         for j in range(y):
             brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
             brick2 = sprite(all_sprites, a, j*standart_size + b)
+            bricks.add(brick3)
+            bricks.add(brick2)
         brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
         door = UpDoor(all_sprites, door_pos_x*standart_size + a, b)
+        bricks.add(door)
+    all_sprites.add(bricks)
 
 
 make_room(Brick, (10, 10), 20, 10, 5)
