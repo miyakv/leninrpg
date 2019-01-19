@@ -22,6 +22,7 @@ def load_image(name, colorkey=None):
 all_sprites = pygame.sprite.Group()
 brick_image = load_image('brick.jpg')
 door_image = load_image('door3.png')
+updoor_image = load_image('door.png')
 standart_size = 16
 
 
@@ -47,19 +48,43 @@ class Door(pygame.sprite.Sprite):
         all_sprites.add(self)
 
 
-def make_room(sprite, x, y, door_pos=1):
-    for i in range(x):
-        brick1 = sprite(all_sprites, i*standart_size, 0)
-        if i != door_pos:
-            brick4 = sprite(all_sprites, i*standart_size, y*standart_size)
-    for j in range(y):
-        brick3 = sprite(all_sprites, x*standart_size, j*standart_size)
-        brick2 = sprite(all_sprites, 0, j*standart_size)
-    brick = sprite(all_sprites, x*standart_size, y*standart_size)
-    door = Door(all_sprites, door_pos*standart_size, y*standart_size)
+class UpDoor(pygame.sprite.Sprite):
+    def __init__(self, group, x, y):
+        super().__init__()
+        self.group = group
+        self.image = updoor_image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        all_sprites.add(self)
 
 
-make_room(Brick, 20, 10, 5)
+def make_room(sprite, pos, x, y, door_pos_x, door_down=True):
+    a, b = pos
+    if door_down:
+        for i in range(x):
+            brick1 = sprite(all_sprites, i*standart_size + a, b)
+            if i != door_pos_x:
+                brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
+        for j in range(y):
+            brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
+            brick2 = sprite(all_sprites, a, j*standart_size + b)
+        brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
+        door = Door(all_sprites, door_pos_x*standart_size + a, y*standart_size + b)
+    else:
+        for i in range(x):
+            if i != door_pos_x:
+                brick1 = sprite(all_sprites, i*standart_size + a, b)
+            brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
+        for j in range(y):
+            brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
+            brick2 = sprite(all_sprites, a, j*standart_size + b)
+        brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
+        door = UpDoor(all_sprites, door_pos_x*standart_size + a, b)
+
+
+make_room(Brick, (10, 10), 20, 10, 5)
+make_room(Brick, (10, 200), 10, 5, 5, False)
 
 running = True
 while running:
