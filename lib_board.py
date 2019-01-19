@@ -58,16 +58,21 @@ class Board:
         self.on_click(cell)
 
 
-board = Board(8, 8)
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            board.get_click(event.pos)
-    screen.fill((0, 0, 0))
-    board.render()
-    pygame.display.flip()
-pygame.quit()
+class Game:
+    def __init__(self):
+        self.board = Board(8, 8, 30)
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.board.get_click(event.pos)
+            screen.fill((0, 0, 0))
+            self.board.render()
+            pygame.display.flip()
+        pygame.quit()
+
+
+window = Game()
 
