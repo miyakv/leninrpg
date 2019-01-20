@@ -1,11 +1,6 @@
 import pygame
 
 
-pygame.init()
-size = 500, 500
-screen = pygame.display.set_mode(size)
-
-
 class Board:
     # создание поля
     def __init__(self, width, height, cell_size, left_m=10, top_m=10):
@@ -56,18 +51,4 @@ class Board:
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
         self.on_click(cell)
-
-
-board = Board(8, 8)
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            board.get_click(event.pos)
-    screen.fill((0, 0, 0))
-    board.render()
-    pygame.display.flip()
-pygame.quit()
 
