@@ -9,19 +9,13 @@ size = 500, 500
 screen = pygame.display.set_mode(size)
 
 
+
 class Location(Board):
-    def __init__(self, h, w, list, start_tile, tile_size = 8): # list should not contain outer walls
+    def __init__(self, screen, h, w, list, start_tile, tile_size = 8): # list should not contain outer walls
         super().__init__(w + 2, h + 2, tile_size)
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.border(i, j):
-                    self.board[i][j] = 1
-                else:
-                    try:
-                        self.board[i][j] = list[i - 1][j - 1] # puts list in self.board
-                    except Exception:
-                        pass
+        self.screen = screen
         self.start_tile = start_tile
+        self.walls = list
 
 
     def border(self, i, j):
@@ -31,10 +25,9 @@ class Location(Board):
         self.board[self.start_tile[0]][self.start_tile[1]] = config.SPRITES['player']
         config.CURRENT_LOCATION = self
 
-    def render(self):
-        for i in range(self.height):
-            for j in range(self.width):
-                config.draw(self.board[i][j], screen, i, j, self.start_tile)
+    def render_sprites(self, spritegroup):
+        spritegroup.draw(self.screen)
+        self.walls.draw(self.screen)
 
     def get_tile(self, x, y):
         return self.board[y][x]
