@@ -1,4 +1,6 @@
 import pygame
+import config
+
 
 size = width, height = 400, 400
 screen = pygame.display.set_mode(size)
@@ -66,67 +68,77 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+        self.money = 0
+        self.health = 100
+        self.inventory = {}
+
         all_sprites.add(self)
 
+    def possible_move(self):
+        for s in all_sprites:
+            if pygame.sprite.collide_rect(self, s):
+                if s != self:
+                    return False
+                else:
+                    return True
 
-def make_room(sprite, pos, x, y, door_pos_x, door_down=True):
-    a, b = pos
-    bricks = set()
-    if door_down:
-        for i in range(x):
-            brick1 = sprite(all_sprites, i*standart_size + a, b)
-            bricks.add(brick1)
-            if i != door_pos_x:
-                brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
-                bricks.add(brick4)
-        for j in range(y):
-            brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
-            bricks.add(brick3)
-            brick2 = sprite(all_sprites, a, j*standart_size + b)
-            bricks.add(brick2)
-        brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
-        bricks.add(brick)
-        door = Door(all_sprites, door_pos_x*standart_size + a, y*standart_size + b)
-        bricks.add(door)
-    else:
-        for i in range(x):
-            if i != door_pos_x:
-                brick1 = sprite(all_sprites, i*standart_size + a, b)
-                bricks.add(brick1)
-            brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
-            bricks.add(brick4)
-        for j in range(y):
-            brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
-            brick2 = sprite(all_sprites, a, j*standart_size + b)
-            bricks.add(brick3)
-            bricks.add(brick2)
-        brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
-        door = UpDoor(all_sprites, door_pos_x*standart_size + a, b)
-        bricks.add(door)
-    all_sprites.add(bricks)
+    def move(self, direction):
+        if direction == 'down':
+            self.rect.y += config.TILE_SIZE
+        if direction == 'up':
+            self.rect.y -= config.TILE_SIZE
+        if direction == 'left':
+            self.rect.x -= config.TILE_SIZE
+        if direction == 'right':
+            self.rect.x += config.TILE_SIZE
 
+        if not self.possible_move():
+            if direction == 'down':
+                self.rect.y -= config.TILE_SIZE
+            if direction == 'up':
+                self.rect.y += config.TILE_SIZE
+            if direction == 'left':
+                self.rect.x += config.TILE_SIZE
+            if direction == 'right':
+                self.rect.x -= config.TILE_SIZE
 
-player = Player(all_sprites, 30, 26)
-make_room(Brick, (10, 10), 20, 10, 5)
-make_room(Brick, (10, 200), 10, 5, 5, False)
+# def make_room(sprite, pos, x, y, door_pos_x, door_down=True):
+#     a, b = pos
+#     bricks = set()
+#     if door_down:
+#         for i in range(x):
+#             brick1 = sprite(all_sprites, i*standart_size + a, b)
+#             bricks.add(brick1)
+#             if i != door_pos_x:
+#                 brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
+#                 bricks.add(brick4)
+#         for j in range(y):
+#             brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
+#             bricks.add(brick3)
+#             brick2 = sprite(all_sprites, a, j*standart_size + b)
+#             bricks.add(brick2)
+#         brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
+#         bricks.add(brick)
+#         door = Door(all_sprites, door_pos_x*standart_size + a, y*standart_size + b)
+#         bricks.add(door)
+#     else:
+#         for i in range(x):
+#             if i != door_pos_x:
+#                 brick1 = sprite(all_sprites, i*standart_size + a, b)
+#                 bricks.add(brick1)
+#             brick4 = sprite(all_sprites, i*standart_size + a, y*standart_size + b)
+#             bricks.add(brick4)
+#         for j in range(y):
+#             brick3 = sprite(all_sprites, x*standart_size + a, j*standart_size + b)
+#             brick2 = sprite(all_sprites, a, j*standart_size + b)
+#             bricks.add(brick3)
+#             bricks.add(brick2)
+#         brick = sprite(all_sprites, x*standart_size + a, y*standart_size + b)
+#         door = UpDoor(all_sprites, door_pos_x*standart_size + a, b)
+#         bricks.add(door)
+#     all_sprites.add(bricks)
+# make_room(Brick, (10, 10), 20, 10, 5)
+# make_room(Brick, (10, 200), 10, 5, 5, False)
+# player = Player(all_sprites, 30, 26)
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_DOWN:
-                player.rect.y += 10
-            if event.key == pygame.K_UP:
-                player.rect.y -= 10
-            if event.key == pygame.K_LEFT:
-                player.rect.x -= 10
-            if event.key == pygame.K_RIGHT:
-                player.rect.x += 10
-
-    screen.fill(pygame.Color('white'))
-    all_sprites.draw(screen)
-    pygame.display.flip()
-
-pygame.quit()
