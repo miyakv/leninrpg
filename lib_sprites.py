@@ -1,6 +1,11 @@
 import pygame
 import config
+import os
 
+pygame.mixer.init()
+
+open_door = pygame.mixer.Sound('waves/open.wav')
+close_door = pygame.mixer.Sound('waves/close.wav')
 
 size = width, height = 400, 400
 screen = pygame.display.set_mode(size)
@@ -25,7 +30,6 @@ brick_image = load_image('brick.jpg')
 door_image = load_image('door3.png', (255, 255, 255))
 door1_image = load_image('door1.png', (255, 255, 255))
 lenin_image = load_image('lenin.gif', (112, 96, 67))
-standart_size = 16
 
 
 class Brick(pygame.sprite.Sprite):
@@ -51,15 +55,16 @@ class Door(pygame.sprite.Sprite):
         group.add(self)
 
     def update(self):
-        print(self.now)
         if self.now == 0:
             self.image = door1_image
             self.rect.x += config.TILE_SIZE
             self.now = 1
+            open_door.play()
         else:
             self.image = door_image
             self.rect.x -= config.TILE_SIZE
             self.now = 0
+            close_door.play()
 
     def get_event(self, event):
         if self.rect.collidepoint(event.pos):
