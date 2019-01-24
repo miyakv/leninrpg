@@ -1,7 +1,9 @@
 import pygame
 from lib_sprites import *
 
+pygame.mixer.init()
 pygame.init()
+
 size = 500, 500
 screen = pygame.display.set_mode(size)
 
@@ -29,8 +31,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                        for door in self.doors:
-                            door.get_event(event)
+                    for door in self.doors:
+                        door.get_event(event)
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_w:
                         self.player.move('up')
