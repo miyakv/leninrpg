@@ -9,11 +9,12 @@ close_door = pygame.mixer.Sound('waves/close.wav')
 
 size = width, height = 400, 400
 screen = pygame.display.set_mode(size)
+STEP = 3
 
 
 def load_image(name, colorkey=None):
     try:
-        image = pygame.image.load(name)
+        image = pygame.image.load('pics/'+name)
     except pygame.error as message:
         print('Cannot load image:', name)
         raise SystemExit(message)
@@ -94,21 +95,21 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, direction):
         if direction == 'down':
-            self.rect.y += config.TILE_SIZE
+            self.rect.y += STEP
         if direction == 'up':
-            self.rect.y -= config.TILE_SIZE
+            self.rect.y -= STEP
         if direction == 'left':
-            self.rect.x -= config.TILE_SIZE
+            self.rect.x -= STEP
         if direction == 'right':
-            self.rect.x += config.TILE_SIZE
+            self.rect.x += STEP
         if not self.possible_move():
             if direction == 'down':
-                self.rect.y -= config.TILE_SIZE
+                self.rect.y -= STEP
             if direction == 'up':
-                self.rect.y += config.TILE_SIZE
+                self.rect.y += STEP
             if direction == 'left':
-                self.rect.x += config.TILE_SIZE
+                self.rect.x += STEP
             if direction == 'right':
-                self.rect.x -= config.TILE_SIZE
+                self.rect.x -= STEP
 
 
