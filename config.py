@@ -1,0 +1,4 @@
+WALL = 1
+LOCATION_EXIT = -1
+PLAYER = 'p'
+TILE_SIZE = 50

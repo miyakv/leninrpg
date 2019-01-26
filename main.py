@@ -5,7 +5,7 @@ from config import *
 pygame.mixer.init()
 pygame.init()
 
-size = 500, 500
+size = width, height = 500, 500
 screen = pygame.display.set_mode(size)
 FPS = 60
 
@@ -18,18 +18,40 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+
+
 class Game:
     def __init__(self):
         self.all_sprites = pygame.sprite.Group()
+        self.arrow = pygame.sprite.Group()
         self.player = self.generate_level(load_level('level.txt'))
         clock = pygame.time.Clock()
         pressed_left = pressed_right = pressed_up = pressed_down = False
-
+        camera = Camera()
+        pygame.mouse.set_visible(False)
+        arrow = Arrow(self.arrow)
+        self.arrow.add(arrow)
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.MOUSEMOTION:
+                    x, y = event.pos
+                    arrow.rect.x = x
+                    arrow.rect.y = y
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     for door in self.all_sprites:
                         if type(door) == Door:
@@ -62,8 +84,14 @@ class Game:
             if pressed_down:
                 self.player.move('down')
 
-            screen.fill((202, 255, 255))
+            camera.update(self.player)
+
+            for sprite in self.all_sprites:
+                camera.apply(sprite)
+
+            screen.fill((0, 250, 200))
             self.all_sprites.draw(screen)
+            self.arrow.draw(screen)
             pygame.display.flip()
             clock.tick(FPS)
 

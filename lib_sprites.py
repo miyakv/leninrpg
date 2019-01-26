@@ -1,6 +1,7 @@
 import pygame
 import config
 import os
+import random
 
 pygame.mixer.init()
 
@@ -9,7 +10,7 @@ close_door = pygame.mixer.Sound('waves/close.wav')
 
 size = width, height = 400, 400
 screen = pygame.display.set_mode(size)
-STEP = 3
+STEP = 5
 
 
 def load_image(name, colorkey=None):
@@ -27,10 +28,11 @@ def load_image(name, colorkey=None):
 
 
 all_sprites = pygame.sprite.Group()
-brick_image = load_image('brick.jpg')
-door_image = load_image('door3.png', (255, 255, 255))
-door1_image = load_image('door1.png', (255, 255, 255))
-lenin_image = load_image('lenin.gif', (112, 96, 67))
+brick_image = load_image('black_brick.png')
+door_image = load_image('door4.png')
+door1_image = load_image('door1.png')
+lenin_image = load_image('lenin.gif', (111, 95, 66))
+mouse_image = load_image('mouse.png', (0, 0, 0))
 
 
 class Brick(pygame.sprite.Sprite):
@@ -51,25 +53,42 @@ class Door(pygame.sprite.Sprite):
         self.image = door_image
         self.rect = self.image.get_rect()
         self.rect.x = x
-        self.rect.y = y
+        self.rect.y = y + 50 - 15
         self.now = 0
         group.add(self)
 
     def update(self):
         if self.now == 0:
-            self.image = door1_image
             self.rect.x += config.TILE_SIZE
+            copy = self.rect
+            self.image = door1_image
+            self.rect = self.image.get_rect()
+            self.rect.x = copy.x - self.rect.y
+            self.rect.y = copy.y
             self.now = 1
             open_door.play()
         else:
+            copy = self.rect
             self.image = door_image
             self.rect.x -= config.TILE_SIZE
+            self.rect = self.image.get_rect()
+            self.rect.x += copy.x
+            self.rect.y += copy.y
             self.now = 0
             close_door.play()
 
     def get_event(self, event):
-        if self.rect.collidepoint(event.pos):
+        if self.collidepoint(event.pos):
             self.update()
+
+    def collidepoint(self, point):
+        x1, y1, a, b = self.rect
+        x1 -= 10
+        x3, y3 = x1 + a, y1 + b
+        x2, y2 = point
+        if x1 <= x2 <= x3 or y1 <= x2 <= y3:
+            return True
+        return False
 
 
 class Player(pygame.sprite.Sprite):
@@ -111,5 +130,16 @@ class Player(pygame.sprite.Sprite):
                 self.rect.x += STEP
             if direction == 'right':
                 self.rect.x -= STEP
+
+
+class Arrow(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__()
+        self.group = group
+        self.image = mouse_image
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, width)
+        self.rect.y = random.randint(0, height)
+
 
 
