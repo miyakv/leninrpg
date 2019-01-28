@@ -1,5 +1,5 @@
 import pygame
-import config
+from config import *
 import os
 import random
 
@@ -31,8 +31,17 @@ all_sprites = pygame.sprite.Group()
 brick_image = load_image('black_brick.png')
 door_image = load_image('door4.png')
 door1_image = load_image('door1.png')
-lenin_image = load_image('lenin.gif', (111, 95, 66))
+lenin_image = load_image('lenin.gif', (255, 255, 255))
 mouse_image = load_image('mouse.png', (0, 0, 0))
+wood_image = load_image('wood.jpg')
+brick_font_image = load_image('brick_font.jpeg')
+grey_wood = load_image('grey_wood.jpeg')
+great_wood = load_image('black_wood.jpg')
+factory_image = load_image('factory.jpg')
+worker_image = load_image('worker.png', (255, 255, 255))
+dead_worker = load_image('dead_worker.png', (255, 255, 255))
+images = {'brick': brick_font_image, 'wood': great_wood, 'factory': factory_image,
+          'worker': worker_image, 'dead_worker': dead_worker, 'grey_wood': grey_wood}
 
 
 class Brick(pygame.sprite.Sprite):
@@ -59,7 +68,7 @@ class Door(pygame.sprite.Sprite):
 
     def update(self):
         if self.now == 0:
-            self.rect.x += config.TILE_SIZE
+            self.rect.x += TILE_SIZE
             copy = self.rect
             self.image = door1_image
             self.rect = self.image.get_rect()
@@ -70,7 +79,7 @@ class Door(pygame.sprite.Sprite):
         else:
             copy = self.rect
             self.image = door_image
-            self.rect.x -= config.TILE_SIZE
+            self.rect.x -= TILE_SIZE
             self.rect = self.image.get_rect()
             self.rect.x += copy.x
             self.rect.y += copy.y
@@ -86,9 +95,27 @@ class Door(pygame.sprite.Sprite):
         x1 -= 10
         x3, y3 = x1 + a, y1 + b
         x2, y2 = point
-        if x1 <= x2 <= x3 or y1 <= x2 <= y3:
+        if x1 <= x2 <= x3 and y1 <= y2 <= y3:
             return True
         return False
+
+
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, tile_type, tile_group, pos_x, pos_y):
+        super().__init__(tile_group)
+        self.image = images[tile_type]
+        self.rect = self.image.get_rect().move(pos_x,
+                                               pos_y)
+
+
+class Worker(pygame.sprite.Sprite):
+    def __init__(self, worker_group, pos_x, pos_y):
+        super().__init__(worker_group)
+        self.image = images['worker']
+        self.rect = self.image.get_rect().move(pos_x, pos_y)
+
+    def update(self):
+        self.image = images['dead_worker']
 
 
 class Player(pygame.sprite.Sprite):
@@ -110,6 +137,10 @@ class Player(pygame.sprite.Sprite):
         info = pygame.sprite.spritecollide(self, self.group, False)
         if len(info) == 1:
             return True
+        else:
+            for i in info:
+                if type(i) == Goal:
+                    i.done = True
         return False
 
     def move(self, direction):
@@ -130,6 +161,12 @@ class Player(pygame.sprite.Sprite):
                 self.rect.x += STEP
             if direction == 'right':
                 self.rect.x -= STEP
+
+
+class Goal(Tile):
+    def __init__(self, tile_type, tile_group, pos_x, pos_y):
+        super().__init__(tile_type, tile_group, pos_x, pos_y)
+        self.done = False
 
 
 class Arrow(pygame.sprite.Sprite):

@@ -36,7 +36,40 @@ class Game:
     def __init__(self):
         self.all_sprites = pygame.sprite.Group()
         self.arrow = pygame.sprite.Group()
-        self.player = self.generate_level(load_level('level.txt'))
+        self.tile_group = pygame.sprite.Group()
+        self.workers = pygame.sprite.Group()
+        self.goal = Goal('brick', self.all_sprites, 0, 0)
+        self.factory_level()
+        pygame.quit()
+
+    def generate_level(self, level):
+        new_player, x, y = None, None, None
+        for y in range(len(level)):
+            for x in range(len(level[y])):
+                if level[y][x] == '#':
+                    Brick(self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
+                elif level[y][x] == '@':
+                    new_player = Player(self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
+                elif level[y][x] == 'f':
+                    Tile('factory', self.tile_group, x * TILE_SIZE, y * TILE_SIZE)
+                elif level[y][x] == 'w':
+                    self.all_sprites.add(Worker(self.workers, x * TILE_SIZE, y * TILE_SIZE))
+        for y in range(len(level)):
+            for x in range(len(level[y])):
+                if level[y][x] == '_':
+                    Door(self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
+        return new_player
+
+    def check_for_goal(self):
+        if self.goal.done:
+            return True
+        return False
+
+    def factory_level(self):
+        self.all_sprites = pygame.sprite.Group()
+        self.arrow = pygame.sprite.Group()
+        self.tile_group = pygame.sprite.Group()
+        self.player = self.generate_level(load_level('factory.txt'))
         clock = pygame.time.Clock()
         pressed_left = pressed_right = pressed_up = pressed_down = False
         camera = Camera()
@@ -44,6 +77,8 @@ class Game:
         arrow = Arrow(self.arrow)
         self.arrow.add(arrow)
         running = True
+        x, y = 5, 9
+        self.goal = Goal('grey_wood', self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -56,6 +91,7 @@ class Game:
                     for door in self.all_sprites:
                         if type(door) == Door:
                             door.get_event(event)
+
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         pressed_left = True
@@ -89,27 +125,20 @@ class Game:
             for sprite in self.all_sprites:
                 camera.apply(sprite)
 
-            screen.fill((0, 250, 200))
+            for tile in self.tile_group:
+                camera.apply(tile)
+
+            if self.check_for_goal():
+                screen.fill(pygame.Color('red'))
+                for worker in self.workers:
+                     worker.update()
+            else:
+                screen.fill((255, 255, 255))
+            self.tile_group.draw(screen)
             self.all_sprites.draw(screen)
             self.arrow.draw(screen)
             pygame.display.flip()
             clock.tick(FPS)
-
-        pygame.quit()
-
-    def generate_level(self, level):
-        new_player, x, y = None, None, None
-        for y in range(len(level)):
-            for x in range(len(level[y])):
-                if level[y][x] == '#':
-                    Brick(self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
-                elif level[y][x] == '@':
-                    new_player = Player(self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
-        for y in range(len(level)):
-            for x in range(len(level[y])):
-                if level[y][x] == '_':
-                    Door(self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
-        return new_player
 
 
 game = Game()
