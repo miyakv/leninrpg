@@ -1,15 +1,14 @@
-#############
-#f          #
-#           #
-#           #
-#    @      #
-#           #
-#           #
-##_##########
+####################
+#f           #    @#
+#            #     #        #######
+#            d     #        #######
+#            #     #        #######
+#            #     #        #######
+#            #     #        #######
+##_#################        ####_##
+         b
+bbbbbbbbbb
 
-        P
-wwwwwwwwwwwww
-wwwwwwwwwwwww
-wwwwwwwwwwwww
-wwwwwwwwwwwww
-wwwwwwwwwwwww
+wwwwwwwwww
+wwwwwwwwww
+wwwwwwwwww
