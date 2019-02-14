@@ -41,11 +41,10 @@ grey_wood = load_image('grey_wood.jpeg')
 great_wood = load_image('black_wood.jpg')
 factory_image = load_image('factory.jpg')
 worker_image = load_image('worker.png', (255, 255, 255))
-dead_worker = load_image('dead_worker.png', (255, 255, 255))
 lenin_car = load_image('lenin_car.png', (255, 255, 255))
 images = {'factory': factory_image,
-          'worker': worker_image, 'dead_worker': dead_worker, 'grey_wood': grey_wood,
-          'street': load_image('street.jpg'), 'menu': load_image('1.jpg'),
+          'worker': worker_image, 'grey_wood': grey_wood,
+          'menu': load_image('1.jpg'),
           'car': load_image('car.png', (255, 255, 255)), 'woody': load_image('woody.png'),
           'brick': brick_image, 'paper': load_image('pm.jpg'), 'news': load_image('news.png')}
 
@@ -116,6 +115,7 @@ class Paper(Brick):
 class Car(Brick):
     def update(self):
         self.image = lenin_car
+        self.rect.x -= 5
         self.move_able = True
 
 
