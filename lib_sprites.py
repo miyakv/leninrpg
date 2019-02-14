@@ -44,9 +44,12 @@ worker_image = load_image('worker.png', (255, 255, 255))
 lenin_car = load_image('lenin_car.png', (255, 255, 255))
 images = {'factory': factory_image,
           'worker': worker_image, 'grey_wood': grey_wood,
-          'menu': load_image('1.jpg'),
+          'menu': load_image('1.jpg'), 'bordur': load_image('bordur.jpg'),
           'car': load_image('car.png', (255, 255, 255)), 'woody': load_image('woody.png'),
-          'brick': brick_image, 'paper': load_image('pm.jpg'), 'news': load_image('news.png')}
+          'brick': brick_image, 'paper': load_image('pm.jpg'), 'news': load_image('news.png'),
+          'driving_car': load_image('driving_car.png', (255, 255, 255)),
+          'lenin': lenin_image, 'empire_flag': load_image('russia_flag.jpg'),
+          'game_over': load_image('gameover.jpg')}
 
 
 class Brick(pygame.sprite.Sprite):
@@ -59,6 +62,10 @@ class Brick(pygame.sprite.Sprite):
         self.rect.y = y
         self.move_able = False
         self.group.add(self)
+
+
+class Trap(Brick):
+    pass
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -216,10 +223,10 @@ class Worker(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, group, x, y):
+    def __init__(self, group, image, x, y):
         super().__init__()
         self.group = group
-        self.image = lenin_image
+        self.image = images[image]
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -228,7 +235,7 @@ class Player(pygame.sprite.Sprite):
         self.money = 0
         self.health = 100
         self.inventory = {'news': 0}
-        self.goals = {'news': 2}
+        self.goals = {'news': 10, 'meters': 1000}
 
         group.add(self)
 
@@ -275,3 +282,16 @@ class Player(pygame.sprite.Sprite):
                     self.rect.x += STEP
                 if direction == 'right':
                     self.rect.x -= STEP
+
+
+class DrivingCar(Player):
+    def __init__(self, group, image, x, y):
+        super().__init__(group, image, x, y)
+
+    def possible_move(self):
+        info = pygame.sprite.spritecollide(self, self.group, False)
+        if len(info) == 1:
+            return True
+        else:
+            return False
+
