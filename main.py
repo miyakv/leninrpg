@@ -148,6 +148,9 @@ class Game:
 
     def first_chapter(self):
         fon = images['menu']
+        largeText = pygame.font.SysFont("comicsansms", 40)
+        TextSurf, TextRect = self.text_objects("Выберите главу!", largeText)
+        TextRect.center = (250, 95)
         choosing = True
         while choosing:
 
@@ -158,9 +161,11 @@ class Game:
 
             screen.fill((0, 0, 0))
             screen.blit(fon, (0, 0))
+            screen.blit(TextSurf, TextRect)
 
             self.button("Газеты", 100, 130, 100, 50, green, bright_green, self.paper_level)
             self.button("Доехать", 300, 250, 100, 50, green, bright_green, self.driving_level)
+            self.button("Площадь", 100, 360, 100, 50, green, bright_green, self.square_level)
             self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
             pygame.display.flip()
