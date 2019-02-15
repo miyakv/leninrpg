@@ -8,6 +8,7 @@ pygame.mixer.init()
 open_door = pygame.mixer.Sound('waves/open.wav')
 close_door = pygame.mixer.Sound('waves/close.wav')
 car_driving = pygame.mixer.Sound('waves/car.wav')
+crash = pygame.mixer.Sound('data/crash.wav')
 pm_work = pygame.mixer.Sound('waves/paper_machine.wav')
 
 size = width, height = 400, 400
@@ -41,15 +42,16 @@ grey_wood = load_image('grey_wood.jpeg')
 great_wood = load_image('black_wood.jpg')
 factory_image = load_image('factory.jpg')
 worker_image = load_image('worker.png', (255, 255, 255))
-lenin_car = load_image('lenin_car.png', (255, 255, 255))
+lenin_car = load_image('lenin_car.jpg', (255, 255, 255))
 images = {'factory': factory_image,
           'worker': worker_image, 'grey_wood': grey_wood,
           'menu': load_image('1.jpg'), 'bordur': load_image('bordur.jpg'),
           'car': load_image('car.png', (255, 255, 255)), 'woody': load_image('woody.png'),
           'brick': brick_image, 'paper': load_image('pm.jpg'), 'news': load_image('news.png'),
-          'driving_car': load_image('driving_car.png', (255, 255, 255)),
-          'lenin': lenin_image, 'empire_flag': load_image('russia_flag.jpg'),
-          'game_over': load_image('gameover.jpg')}
+          'driving_car': load_image('driving_car.jpg', (255, 255, 255)),
+          'lenin': load_image('lenin.gif', (255, 255, 255)), 'empire_flag': load_image('russia_flag.jpg'),
+          'game_over': load_image('gameover.jpg'), 'guide_paper': load_image('guide_paper.png'),
+          'guide_driving': load_image('guide_driving.png')}
 
 
 class Brick(pygame.sprite.Sprite):
@@ -65,6 +67,9 @@ class Brick(pygame.sprite.Sprite):
 
 
 class Trap(Brick):
+    pass
+
+class Boarding(Brick):
     pass
 
 
@@ -287,6 +292,19 @@ class Player(pygame.sprite.Sprite):
 class DrivingCar(Player):
     def __init__(self, group, image, x, y):
         super().__init__(group, image, x, y)
+        self.crashed = False
+        self.win = False
+
+    def crash(self):
+        if not self.crashed:
+            crash.play()
+            self.crashed = True
+
+    def show_win(self):
+        if not self.win:
+            self.win = True
+            car_driving.play()
+
 
     def possible_move(self):
         info = pygame.sprite.spritecollide(self, self.group, False)

@@ -8,8 +8,10 @@ pygame.mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
 
+
 size = width, height = 500, 500
 screen = pygame.display.set_mode(size)
+pygame.display.set_caption('Red Flag')
 FPS = 40
 
 grey = (120, 120, 120)
@@ -97,14 +99,17 @@ class Game:
             screen.blit(fon, (0, 0))
             screen.blit(TextSurf, TextRect)
 
-            self.button("Start!", 100, 450, 100, 50,green,bright_green, self.choose_chapter)
-            self.button("Quit", 300, 450, 100, 50, red,bright_red, self.quitgame)
+            self.button("Играть!", 100, 450, 100, 50,green,bright_green, self.choose_chapter)
+            self.button("Выход", 300, 450, 100, 50, red,bright_red, self.quitgame)
 
             pygame.display.update()
             clock.tick(15)
 
     def choose_chapter(self):
         fon = images['menu']
+        largeText = pygame.font.SysFont("comicsansms", 40)
+        TextSurf, TextRect = self.text_objects("Выберите главу!", largeText)
+        TextRect.center = (250, 95)
         choosing = True
         while choosing:
             pygame.mixer.music.unpause()
@@ -115,9 +120,10 @@ class Game:
 
             screen.fill((0, 0, 0))
             screen.blit(fon, (0, 0))
-            self.button("First", 200, 250, 100, 50, green, bright_green, self.first_chapter)
-            self.button("Second", 200, 310, 100, 50, green, bright_green)
-            self.button("Back", 200, 450, 100, 50, red, bright_red, lambda: self.game_intro(False))
+            screen.blit(TextSurf, TextRect)
+            self.button("Первая", 200, 250, 100, 50, green, bright_green, self.first_chapter)
+            self.button("Вторая", 200, 310, 100, 50, green, bright_green)
+            self.button("Назад", 200, 450, 100, 50, red, bright_red, lambda: self.game_intro(False))
             pygame.display.flip()
             clock.tick(15)
 
@@ -153,9 +159,9 @@ class Game:
             screen.fill((0, 0, 0))
             screen.blit(fon, (0, 0))
 
-            self.button("Paper", 100, 130, 100, 50, green, bright_green, self.paper_level)
-            self.button("Driving", 300, 250, 100, 50, green, bright_green, self.driving_level)
-            self.button("Back", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
+            self.button("Газеты", 100, 130, 100, 50, green, bright_green, self.paper_level)
+            self.button("Доехать", 300, 250, 100, 50, green, bright_green, self.driving_level)
+            self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
             pygame.display.flip()
             clock.tick(15)
@@ -163,11 +169,15 @@ class Game:
     def driving_level(self):
         self.new_level()
         pygame.mixer.music.stop()
+        self.show_guide('guide_driving')
         self.player = DrivingCar(self.all_sprites, 'driving_car', 150, 10)
         pressed_left = pressed_right = pressed_up = pressed_down = False
+        sec = 0
+        crashed = False
         for i in range(10):
             Brick('bordur', self.all_sprites, 0, i * 50)
             Brick('bordur', self.all_sprites, 482, i * 50)
+        finish = False
         running = True
         while running:
             for event in pygame.event.get():
@@ -193,47 +203,69 @@ class Game:
                         pressed_up = False
                     elif event.key == pygame.K_DOWN:
                         pressed_down = False
-
-            if pressed_left:
-                self.player.move('left')
-            if pressed_right:
-                self.player.move('right')
-            if pressed_up:
-                self.player.move('up')
-            if pressed_down:
-                self.player.move('down')
+            if not crashed:
+                if pressed_left:
+                    self.player.move('left')
+                if pressed_right:
+                    self.player.move('right')
+                if pressed_up:
+                     self.player.move('up')
+                if pressed_down:
+                    self.player.move('down')
 
             screen.fill(grey)
             self.animated_group.update()
             self.tile_group.draw(screen)
             self.all_sprites.draw(screen)
-            if self.player.goals['meters'] == 0:
-                pygame.mixer.music.load('data/main.mp3')
-                pygame.mixer.music.play(9999)
-                self.first_chapter()
             largeText = pygame.font.SysFont("comicsansms", 18)
-            TextSurf, TextRect = self.text_objects('Осталось проехать ' + str(self.player.goals['meters']) + ' метров', largeText)
+            TextSurf, TextRect = self.text_objects('Осталось проехать ' +
+                        str(self.player.goals['meters']) + ' метров', largeText)
             TextRect.center = (255, 450)
-            self.player.goals['meters'] -= 1
-            if len(self.all_sprites) < 25:
+            if self.player.goals['meters'] != 0 and not crashed:
+                self.player.goals['meters'] -= 1
+            if len(self.all_sprites) < 26 and not finish:
                 while True:
-                    a = Trap('empire_flag', self.all_sprites, random.randrange(400), random.randrange(400))
+                    player_y = self.player.rect.y
+                    a = Trap('empire_flag', self.all_sprites, random.randrange(400),
+                             random.randrange(400 + player_y, 600 + player_y))
                     info = pygame.sprite.spritecollide(a, self.all_sprites, False)
-                    if len(info) == 1 and (a.rect.y - self.player.rect.y) > 200:
+                    if len(info) == 1:
                         break
                     else:
                         a.kill()
             for i in self.all_sprites:
                 if type(i) == Trap:
-                    i.rect.y -= 5
-                    if i.rect.y < -50:
+                    if i.rect.y < -50 or (finish and not crashed and i.rect.y > self.player.rect.y):
                         i.kill()
-                    if len(pygame.sprite.spritecollide(self.player, self.all_sprites, False)) == 2:
-                        pygame.mixer.music.load('data/crash.mp3')
-                        pygame.mixer.music.play()
-                        self.game_over()
+                    if not finish:
+                        i.rect.y -= 6
 
-            screen.blit(TextSurf, TextRect)
+            if len(pygame.sprite.spritecollide(self.player, self.all_sprites, False)) == 2 \
+                    or self.player.rect.y < -50:
+                self.player.crash()
+                sec += 1
+                crashed = True
+                finish = True
+
+            if self.player.goals['meters'] == 0:
+                finish = True
+                self.player.show_win()
+                sec += 1
+
+            if sec == 200 and not crashed:
+                pygame.mixer.music.load('data/main.mp3')
+                pygame.mixer.music.play(9999)
+                self.first_chapter()
+
+            elif sec == 200 and crashed:
+                self.game_over()
+
+            if finish and not crashed:
+                self.player.rect.y += 5
+
+            if self.player.goals['meters'] != 0:
+                screen.blit(TextSurf, TextRect)
+
             pygame.display.flip()
             clock.tick(FPS)
 
@@ -245,6 +277,7 @@ class Game:
         pygame.mixer.music.stop()
         pygame.mixer.music.load('data/sneaky.mp3')
         pygame.mixer.music.play(9999)
+        self.show_guide('guide_paper')
         self.player = self.generate_level(self.load_level('propaganda.txt'))
         pressed_left = pressed_right = pressed_up = pressed_down = False
         camera = Camera()
@@ -342,16 +375,33 @@ class Game:
         self.animated_group = pygame.sprite.Group()
         self.boarding = pygame.sprite.Group()
 
-    def quitgame(self):
-        pygame.quit()
-        quit()
+    def show_guide(self, guide):
+        running = True
+        largeText = pygame.font.SysFont("comicsansms", 23)
+        TextSurf, TextRect = self.text_objects("Нажмите на любую кнопку мыши...", largeText)
+        TextRect.center = (250, 480)
+        fon = images[guide]
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.quitgame()
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    running = False
+
+            screen.fill((0, 0, 0))
+            screen.blit(fon, (0, 0))
+            screen.blit(TextSurf, TextRect)
+
+            pygame.display.update()
+            clock.tick(15)
 
     def game_over(self):
         pygame.mixer.music.load('data/gameover.mp3')
         pygame.mixer.music.play()
         running = True
-        largeText = pygame.font.SysFont("comicsansms", 40)
-        TextSurf, TextRect = self.text_objects("Press any mouse button...", largeText)
+        largeText = pygame.font.SysFont("comicsansms", 20)
+        TextSurf, TextRect = self.text_objects("Нажмите на любую кнопку мыши...", largeText)
         TextRect.center = (250, 25)
         fon = images['game_over']
 
@@ -369,6 +419,10 @@ class Game:
 
             pygame.display.update()
             clock.tick(15)
+
+    def quitgame(self):
+        pygame.quit()
+        quit()
 
 
 game = Game()
