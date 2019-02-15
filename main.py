@@ -168,6 +168,7 @@ class Game:
 
             self.button("Газеты", 100, 130, 100, 50, green, bright_green, self.paper_level)
             self.button("Доехать", 300, 250, 100, 50, green, bright_green, self.driving_level)
+            
             self.button("Площадь", 100, 360, 100, 50, green, bright_green, self.square_level)
             self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
@@ -199,7 +200,72 @@ class Game:
             clock.tick(15)
 
     def boss_level(self):
-        pass
+        self.new_level()
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load('data/tsar.mp3')
+        pygame.mixer.music.play(9999)
+        self.player = self.generate_level(self.load_level('bourgeois.txt'))
+        pressed_left = pressed_right = pressed_up = pressed_down = False
+        camera = Camera()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    self.quitgame()
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    for door in self.all_sprites:
+                        if type(door) == YDoor:
+                            door.get_event(event)
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        pressed_left = True
+                    elif event.key == pygame.K_RIGHT:
+                        pressed_right = True
+                    elif event.key == pygame.K_UP:
+                        pressed_up = True
+                    elif event.key == pygame.K_DOWN:
+                        pressed_down = True
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT:
+                        pressed_left = False
+                    elif event.key == pygame.K_RIGHT:
+                        pressed_right = False
+                    elif event.key == pygame.K_UP:
+                        pressed_up = False
+                    elif event.key == pygame.K_DOWN:
+                        pressed_down = False
+
+            if pressed_left:
+                self.player.move('left')
+            if pressed_right:
+                self.player.move('right')
+            if pressed_up:
+                self.player.move('up')
+            if pressed_down:
+                self.player.move('down')
+
+            self.updating(camera)
+            screen.fill(grey)
+            self.animated_group.update()
+            self.tile_group.draw(screen)
+            self.all_sprites.draw(screen)
+
+            for keys, values in self.player.inventory.items():
+                screen.blit(images[keys], (400, 20))
+                large_text = pygame.font.SysFont("comicsansms", 16)
+                text_surf, text_rect = self.text_objects(str(values), large_text)
+                text_rect.center = (455, 30)
+                screen.blit(text_surf, text_rect)
+
+            large_text = pygame.font.SysFont("comicsansms", 20)
+            text_surf, text_rect = self.text_objects('Освободи страну!', large_text)
+            text_rect.center = (255, 30)
+            screen.blit(text_surf, text_rect)
+            pygame.display.flip()
+            clock.tick(FPS)
 
     def driving_level(self):
         self.new_level()
