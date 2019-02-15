@@ -41,6 +41,8 @@ class Camera:
 class Game:
     def __init__(self):
         self.new_level()
+        self.news = 0
+        self.done = {'1': False, '2': False}
         self.run()
 
     def run(self):
@@ -58,10 +60,10 @@ class Game:
                     if name != 'square.txt':
                         Tile('woody', self.tile_group, x * TILE_SIZE, y * TILE_SIZE)
                     new_player = Player(self.all_sprites, 'lenin', x * TILE_SIZE, y * TILE_SIZE)
-                elif level[y][x] == 'f':
-                    Tile('factory', self.tile_group, x * TILE_SIZE, y * TILE_SIZE)
+                elif level[y][x] == 's':
+                    Tile('square', self.boarding, x * TILE_SIZE, y * TILE_SIZE)
                 elif level[y][x] == 'w':
-                    self.all_sprites.add(Worker(self.workers, x * TILE_SIZE, y * TILE_SIZE))
+                    NPC('worker', self.all_sprites, x * TILE_SIZE, y * TILE_SIZE)
                 elif level[y][x] == 's':
                     Tile('street', self.tile_group, x * TILE_SIZE, y * TILE_SIZE)
                 elif level[y][x] == 'c':
@@ -168,7 +170,6 @@ class Game:
 
             self.button("Газеты", 100, 130, 100, 50, green, bright_green, self.paper_level)
             self.button("Доехать", 300, 250, 100, 50, green, bright_green, self.driving_level)
-            self.button("К буржуям", 150, 350, 100, 50, green, bright_green, self.boss_level)
             self.button("Площадь", 100, 360, 100, 50, green, bright_green, self.square_level)
             self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
@@ -200,72 +201,7 @@ class Game:
             clock.tick(15)
 
     def boss_level(self):
-        self.new_level()
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load('data/tsar.mp3')
-        pygame.mixer.music.play(9999)
-        self.player = self.generate_level(self.load_level('bourgeois.txt'))
-        pressed_left = pressed_right = pressed_up = pressed_down = False
-        camera = Camera()
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                    self.quitgame()
-
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    for door in self.all_sprites:
-                        if type(door) == YDoor:
-                            door.get_event(event)
-
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        pressed_left = True
-                    elif event.key == pygame.K_RIGHT:
-                        pressed_right = True
-                    elif event.key == pygame.K_UP:
-                        pressed_up = True
-                    elif event.key == pygame.K_DOWN:
-                        pressed_down = True
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:
-                        pressed_left = False
-                    elif event.key == pygame.K_RIGHT:
-                        pressed_right = False
-                    elif event.key == pygame.K_UP:
-                        pressed_up = False
-                    elif event.key == pygame.K_DOWN:
-                        pressed_down = False
-
-            if pressed_left:
-                self.player.move('left')
-            if pressed_right:
-                self.player.move('right')
-            if pressed_up:
-                self.player.move('up')
-            if pressed_down:
-                self.player.move('down')
-
-            self.updating(camera)
-            screen.fill(grey)
-            self.animated_group.update()
-            self.tile_group.draw(screen)
-            self.all_sprites.draw(screen)
-
-            for keys, values in self.player.inventory.items():
-                screen.blit(images[keys], (400, 20))
-                large_text = pygame.font.SysFont("comicsansms", 16)
-                text_surf, text_rect = self.text_objects(str(values), large_text)
-                text_rect.center = (455, 30)
-                screen.blit(text_surf, text_rect)
-
-            large_text = pygame.font.SysFont("comicsansms", 20)
-            text_surf, text_rect = self.text_objects('Освободи страну!', large_text)
-            text_rect.center = (255, 30)
-            screen.blit(text_surf, text_rect)
-            pygame.display.flip()
-            clock.tick(FPS)
+        pass
 
     def driving_level(self):
         self.new_level()
@@ -353,6 +289,7 @@ class Game:
 
             if self.player.goals['meters'] == 0:
                 finish = True
+                self.done['2'] = True
                 self.player.show_win()
                 sec += 1
 
@@ -369,6 +306,13 @@ class Game:
 
             if self.player.goals['meters'] != 0:
                 screen.blit(TextSurf, TextRect)
+
+            screen.blit(images['news'], (400, 20))
+            large_text = pygame.font.SysFont("comicsansms", 16)
+            text_surf, text_rect = self.text_objects(str(self.player.inventory['news']),
+                                                     large_text)
+            text_rect.center = (455, 30)
+            screen.blit(text_surf, text_rect)
 
             pygame.display.flip()
             clock.tick(FPS)
@@ -389,11 +333,6 @@ class Game:
                     running = False
                     self.quitgame()
 
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    for obj in self.all_sprites:
-                        if type(obj) == NPC:
-                            obj.dialog()
-
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         pressed_left = True
@@ -403,6 +342,7 @@ class Game:
                         pressed_up = True
                     elif event.key == pygame.K_DOWN:
                         pressed_down = True
+
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         pressed_left = False
@@ -424,22 +364,32 @@ class Game:
 
             self.updating(camera)
             screen.fill(grey)
-            self.animated_group.update()
+            self.boarding.draw(screen)
             self.all_sprites.draw(screen)
 
-            for keys, values in self.player.inventory.items():
-                screen.blit(images[keys], (400, 20))
-                large_text = pygame.font.SysFont("comicsansms", 16)
-                text_surf, text_rect = self.text_objects(str(values), large_text)
-                text_rect.center = (455, 30)
+            if not self.player.moving:
+                large_text = pygame.font.SysFont("comicsansms", 18)
+                text_surf, text_rect = self.text_objects(self.player.questions[self.player.question], large_text)
+                text_rect.center = (255, 50)
                 screen.blit(text_surf, text_rect)
 
-            large_text = pygame.font.SysFont("comicsansms", 18)
-            text_surf, text_rect = self.text_objects('Осталось напечатать ' + str(self.player.goals['news']), large_text)
-            text_rect.center = (255, 30)
-            screen.blit(text_surf, text_rect)
+                if self.player.question < 3:
+                    self.button("Да", 100 + (self.player.question) * 60, 250, 100, 50, red,
+                                bright_red, self.next_question)
+                    self.button("Нет", 300 + (self.player.question - 1) * 60, 250, 100, 50, red,
+                                bright_red, self.game_over)
+                elif self.player.question == 3:
+                    self.first_chapter_ending()
+
             pygame.display.flip()
             clock.tick(FPS)
+
+    def next_question(self):
+        self.player.question += 1
+
+    def first_chapter_ending(self):
+        self.show_guide('owl')
+        self.choose_chapter()
 
     def paper_level(self):
         self.new_level()
@@ -526,11 +476,14 @@ class Game:
                 camera.apply(tile)
             for obj in self.boarding:
                 camera.apply(obj)
+            for obj in self.npc:
+                camera.apply(obj)
         else:
             for i in self.all_sprites:
                 if type(i) == Car:
                     i.rect.x += 5
                     if i.rect.x > 600:
+                        self.done['1'] = True
                         pygame.mixer.music.load('data/main.mp3')
                         pygame.mixer.music.play(9999)
                         self.first_chapter()
@@ -543,6 +496,8 @@ class Game:
         self.inventory = pygame.sprite.Group()
         self.animated_group = pygame.sprite.Group()
         self.boarding = pygame.sprite.Group()
+        self.fone = pygame.sprite.Group()
+        self.npc = pygame.sprite.Group()
 
     def show_guide(self, guide):
         running = True

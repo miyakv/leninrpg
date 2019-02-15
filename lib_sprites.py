@@ -44,7 +44,8 @@ images = {'worker': worker_image, 'menu': load_image('1.jpg'), 'bordur': load_im
           'driving_car': load_image('driving_car.jpg', (255, 255, 255)),
           'lenin': load_image('lenin.gif', (255, 255, 255)), 'empire_flag': load_image('russia_flag.jpg'),
           'game_over': load_image('gameover.jpg'), 'guide_paper': load_image('guide_paper.png'),
-          'guide_driving': load_image('guide_driving.png'), 'white': load_image('white.jpg', (255, 255, 255))}
+          'guide_driving': load_image('guide_driving.png'), 'white': load_image('white.jpg', (255, 255, 255)),
+          'square': load_image('square.jpg'), 'owl': load_image('owl.jpg')}
 
 
 class Brick(pygame.sprite.Sprite):
@@ -202,29 +203,6 @@ class Tile(pygame.sprite.Sprite):
                                                pos_y)
 
 
-class Worker(pygame.sprite.Sprite):
-    def __init__(self, worker_group, pos_x, pos_y):
-        super().__init__(worker_group)
-        self.image = images['worker']
-        self.rect = self.image.get_rect().move(pos_x, pos_y)
-        self.status = 1
-
-    def update(self):
-        if self.status == 1:
-            self.change()
-        else:
-            self.back()
-        self.rect.x += 7
-
-    def change(self):
-        self.image = images['dead_worker']
-        self.status = 2
-
-    def back(self):
-        self.image = images['worker']
-        self.status = 1
-
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, group, image, x, y):
         super().__init__()
@@ -236,6 +214,8 @@ class Player(pygame.sprite.Sprite):
         self.moving = True
         self.updating = True
         self.money = 0
+        self.question = 1
+        self.questions = ['', 'Добрый день, вы Ленин?', 'Вы принесли мне газеты?', 'Как раз во время!']
         self.health = 100
         self.inventory = {'news': 0}
         self.goals = {'news': 10, 'meters': 1000}
@@ -263,7 +243,8 @@ class Player(pygame.sprite.Sprite):
                     self.updating = False
                     car_driving.play()
                     i.update()
-
+            elif type(i) == NPC:
+                self.moving = False
         return False
 
     def move(self, direction):
