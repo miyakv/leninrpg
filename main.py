@@ -168,7 +168,6 @@ class Game:
 
             self.button("Газеты", 100, 130, 100, 50, green, bright_green, self.paper_level)
             self.button("Доехать", 300, 250, 100, 50, green, bright_green, self.driving_level)
-            self.button("К буржуям", 150, 350, 100, 50, green, bright_green, self.boss_level)
             self.button("Площадь", 100, 360, 100, 50, green, bright_green, self.square_level)
             self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
@@ -192,7 +191,7 @@ class Game:
             screen.blit(fon, (0, 0))
             screen.blit(TextSurf, TextRect)
 
-            self.button("Буржуй", 100, 130, 100, 50, green, bright_green, self.boss_level)
+            self.button("К буржуям*", 100, 130, 100, 60, green, bright_green, self.boss_level)
             self.button("*В разр.*", 300, 250, 100, 50, green, bright_green, self.driving_level)
             self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
