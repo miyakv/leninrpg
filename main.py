@@ -191,7 +191,7 @@ class Game:
             screen.blit(fon, (0, 0))
             screen.blit(TextSurf, TextRect)
 
-            self.button("К буржуям*", 100, 130, 100, 60, green, bright_green, self.boss_level)
+            self.button("К буржуям*", 100, 130, 110, 50, green, bright_green, self.boss_level)
             self.button("*В разр.*", 300, 250, 100, 50, green, bright_green, self.driving_level)
             self.button("Назад", 200, 450, 100, 50, red, bright_red, self.choose_chapter)
 
@@ -260,7 +260,7 @@ class Game:
                 screen.blit(text_surf, text_rect)
 
             large_text = pygame.font.SysFont("comicsansms", 20)
-            text_surf, text_rect = self.text_objects('Освободи страну!', large_text)
+            text_surf, text_rect = self.text_objects('Уровень в разработке', large_text)
             text_rect.center = (255, 30)
             screen.blit(text_surf, text_rect)
             pygame.display.flip()
