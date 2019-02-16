@@ -44,7 +44,8 @@ images = {'worker': worker_image, 'menu': load_image('1.jpg'), 'bordur': load_im
           'driving_car': load_image('driving_car.jpg', (255, 255, 255)),
           'lenin': load_image('lenin.gif', (255, 255, 255)), 'empire_flag': load_image('russia_flag.jpg'),
           'game_over': load_image('gameover.jpg'), 'guide_paper': load_image('guide_paper.png'),
-          'guide_driving': load_image('guide_driving.png'), 'white': load_image('white.jpg', (255, 255, 255))}
+          'guide_driving': load_image('guide_driving.png'), 'grey_wood': load_image('grey_wood.jpeg', None), 
+          'white': load_image('white.jpg', (255, 255, 255))}
 
 
 class Brick(pygame.sprite.Sprite):
